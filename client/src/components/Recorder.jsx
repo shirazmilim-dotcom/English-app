@@ -107,13 +107,15 @@ export default function Recorder({ onResult, disabled, busy, label = 'לחצו �
   if (typed || !supported) {
     return (
       <div className="recorder typed">
-        {!supported && !typed && (
+        {!supported && !typed && !window.__TRIAL__ && (
           <Notice kind="warn" icon="🎙️">
             הדפדפן הזה לא תומך בזיהוי דיבור. לתרגול דיבור מומלץ Chrome, Edge או Safari. בינתיים אפשר לתרגל בהקלדה.
           </Notice>
         )}
         <Notice kind="muted" icon="⌨️">
-          מצב הקלדה: זה תרגול כתיבה ולא תרגול דיבור, ולא נספר בדקות הדיבור.
+          {window.__TRIAL__
+            ? 'בגרסת הניסיון אין גישה למיקרופון, ולכן עונים בהקלדה. זה תרגול כתיבה ולא דיבור – תרגול הדיבור עצמו זמין באפליקציה המלאה.'
+            : 'מצב הקלדה: זה תרגול כתיבה ולא תרגול דיבור, ולא נספר בדקות הדיבור.'}
         </Notice>
         <form className="typed-form" onSubmit={submitTyped}>
           <input

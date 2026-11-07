@@ -52,6 +52,12 @@ function Shell({ route, children }) {
           {user.username.slice(0, 1).toUpperCase()}
         </a>
       </header>
+      {window.__TRIAL__ && (
+        <div className="demo-banner" role="note">
+          <strong>גרסת ניסיון:</strong> עונים בהקלדה (אין מיקרופון בעמוד הזה), וההתקדמות נשמרת רק בדפדפן הזה.
+          {config.ai ? ' המשוב והמורה פועלים עם Claude.' : ''}
+        </div>
+      )}
       {!config.ai && (
         <div className="demo-banner" role="note">
           <strong>מצב הדגמה:</strong> לא הוגדר מפתח AI, ולכן המורה משתמש בשיחות כתובות מראש ובמשוב מבוסס כללים פשוטים.{' '}

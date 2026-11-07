@@ -83,7 +83,7 @@ const SR = typeof window !== 'undefined' ? window.SpeechRecognition || window.we
 export function sttSupported() {
   return config.stt === 'server' ? !!window.MediaRecorder : !!SR;
 }
-export const micSupported = () => !!navigator.mediaDevices?.getUserMedia;
+export const micSupported = () => !window.__TRIAL__ && !!navigator.mediaDevices?.getUserMedia;
 
 export function micErrorMessage(err) {
   const n = err?.name || err?.message || '';

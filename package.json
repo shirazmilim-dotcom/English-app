@@ -8,7 +8,8 @@
     "dev": "node --watch server/index.js & vite",
     "build": "vite build",
     "start": "node --env-file-if-exists=.env server/index.js",
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "build:trial": "vite build -c vite.artifact.config.js && node artifact/package-page.mjs"
   },
   "engines": {
     "node": ">=22.5"
@@ -23,6 +24,8 @@
     "@vitejs/plugin-react": "^6.2.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "vite": "^8.3.6"
+    "sql.js": "^1.10.3",
+    "vite": "^8.3.6",
+    "vite-plugin-singlefile": "^2.3.4"
   }
 }

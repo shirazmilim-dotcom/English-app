@@ -35,6 +35,9 @@ const wrap = (fn) => (req, res) =>
     res.status(status).json({ error: 'משהו השתבש בשרת. נסו שוב בעוד רגע.', detail: process.env.NODE_ENV === 'production' ? undefined : String(e.message || e) });
   });
 
+// גרסת ניסיון בדפדפן (ללא מיקרופון): תשובות מוקלדות נחשבות למעבר שיעור ואבן דרך
+const TYPED_OK = () => process.env.TRIAL_TYPED_OK === '1';
+
 const getUser = (id) => parseUser(db.prepare('SELECT * FROM users WHERE id = ?').get(id));
 const arr = (v, max = 50) => (Array.isArray(v) ? v.slice(0, max) : []);
 const str = (v, max = 2000) => String(v ?? '').slice(0, max);
@@ -270,7 +273,7 @@ app.post('/api/lessons/:id/complete', requireAuth, (req, res) => {
   if (lCorrect < 2) reasons.push('לענות נכון על לפחות 2 משאלות ההבנה');
   if (sAchieved < 2) reasons.push('להשלים לפחות 2 משימות דיבור');
   if (vAchieved < 1) reasons.push('להשתמש לפחות במילה אחת במשפט משלך');
-  if (spokenAloud < 1) reasons.push('לבצע לפחות משימת דיבור אחת בקול (לא בהקלדה)');
+  if (spokenAloud < 1 && !TYPED_OK()) reasons.push('לבצע לפחות משימת דיבור אחת בקול (לא בהקלדה)');
   const passed = reasons.length === 0;
   if (passed) for (const q of L.listening.questions) resolveWeakPoint(u.id, `listen:${L.id}:${q.id}`);
 
@@ -382,7 +385,7 @@ app.post('/api/tutor/finish', requireAuth, (req, res) => {
   // אבן דרך: נדרשת השגת מטרת התרחיש בדיבור (לפחות 3 תורות בקול) ושכל שיעורי השלב הושלמו
   let milestone = null;
   const stage = STAGES.find((s) => s.milestoneScenario === scenario.id);
-  if (stage && goalAchieved && spokenTurns >= 3) {
+  if (stage && goalAchieved && (spokenTurns >= 3 || TYPED_OK())) {
     const p = buildPath(u);
     const st = p.stages.find((s) => s.id === stage.id);
     if (st && st.units.every((x) => x.done) && !st.milestone.achieved) {
