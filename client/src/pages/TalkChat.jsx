@@ -4,6 +4,7 @@ import { useApp } from '../ctx.js';
 import { speak, stopSpeaking } from '../lib/speech.js';
 import { Spinner, ErrorBox, En, SpeakButton, FeedbackCard, Notice, Confetti, Mixed } from '../components/ui.jsx';
 import Recorder from '../components/Recorder.jsx';
+import { SoundHelpLink } from '../components/SoundHelp.jsx';
 
 const TUTOR_VOICE = 2;
 
@@ -243,6 +244,7 @@ export default function TalkChat({ id }) {
           </div>
           {demoFlag && <Notice kind="warn" icon="🧪">מצב הדגמה: המורה עוקב אחרי תסריט קבוע ולא מגיב באופן חופשי.</Notice>}
           <button className="btn btn-primary btn-big" onClick={start}>🎙️ מתחילים לדבר</button>
+          <p className="center-text"><SoundHelpLink /></p>
         </div>
       ) : (
         <>

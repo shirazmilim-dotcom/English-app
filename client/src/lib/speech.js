@@ -28,7 +28,7 @@ export function stopSpeaking() {
     currentAudio.pause();
     currentAudio = null;
   }
-  window.speechSynthesis?.cancel();
+  if (window.speechSynthesis?.speaking || window.speechSynthesis?.pending) window.speechSynthesis.cancel();
 }
 
 /** משמיע טקסט באנגלית. rate: 0.6–1.2. voice: אינדקס דובר (לשיחות עם כמה דמויות). */
@@ -53,28 +53,68 @@ export async function speak(text, { rate = 1, voice = 0 } = {}) {
     });
     return;
   }
-  if (!window.speechSynthesis) throw new Error('no-tts');
-  await new Promise((resolve) => {
+  const synth = window.speechSynthesis;
+  if (!synth || typeof SpeechSynthesisUtterance === 'undefined') {
+    reportTtsProblem('unsupported');
+    throw new Error('no-tts');
+  }
+  await new Promise((resolve, reject) => {
     const u = new SpeechSynthesisUtterance(text);
     const voices = pickVoices();
     if (voices.length) u.voice = voices[voice % Math.min(voices.length, 3)];
     u.lang = u.voice?.lang || 'en-US';
     u.rate = rate;
     u.pitch = voice % 2 ? 0.95 : 1.05;
+    let started = false;
+    let finished = false;
+    const finish = (err) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(safety);
+      clearTimeout(startCheck);
+      clearInterval(keepAlive);
+      err ? reject(err) : resolve();
+    };
     // רשת ביטחון: יש דפדפנים שלא מפעילים onend – משחררים אחרי הזמן המשוער
     const words = text.split(/\s+/).length;
-    const safety = setTimeout(resolve, ((words * 0.45) / rate + 2.5) * 1000);
-    u.onend = () => { clearTimeout(safety); resolve(); };
-    u.onerror = () => { clearTimeout(safety); resolve(); };
-    window.speechSynthesis.speak(u);
-    // באג ידוע בכרום: הקראה ארוכה נעצרת – "דחיפה" תקופתית
-    const keepAlive = setInterval(() => {
-      if (!window.speechSynthesis.speaking) return clearInterval(keepAlive);
-      window.speechSynthesis.pause();
-      window.speechSynthesis.resume();
-    }, 10000);
-    u.addEventListener('end', () => clearInterval(keepAlive));
+    const safety = setTimeout(() => finish(), ((words * 0.45) / rate + 4) * 1000);
+    // אם ההקראה לא התחילה תוך כמה שניות – הדפדפן/האפליקציה חוסמים קול
+    const startCheck = setTimeout(() => {
+      if (!started && !synth.speaking) {
+        synth.cancel();
+        reportTtsProblem(voices.length ? 'blocked' : 'novoices');
+        finish(new Error('tts-blocked'));
+      }
+    }, 3500);
+    u.onstart = () => {
+      started = true;
+      ttsWorked = true;
+    };
+    u.onend = () => finish();
+    u.onerror = (e) => {
+      if (e.error === 'interrupted' || e.error === 'canceled') return finish();
+      reportTtsProblem(e.error === 'not-allowed' ? 'gesture' : 'blocked');
+      finish(new Error(e.error || 'tts-error'));
+    };
+    synth.speak(u);
+    if (synth.paused) synth.resume();
+    // באג ידוע בכרום במחשב: הקראה ארוכה נעצרת – "דחיפה" תקופתית (לא בטלפונים, שם זה שובר את ההקראה)
+    const mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const keepAlive = mobile
+      ? null
+      : setInterval(() => {
+          if (!synth.speaking) return;
+          synth.pause();
+          synth.resume();
+        }, 10000);
   });
+}
+
+// דיווח על בעיית שמע – מוצג למשתמש כהודעה עם הנחיות
+let ttsWorked = false;
+function reportTtsProblem(kind) {
+  if (ttsWorked && kind === 'blocked') return; // כבר עבד בעבר – כנראה תקלה רגעית
+  window.dispatchEvent(new CustomEvent('tts-problem', { detail: kind }));
 }
 
 // ---------------- הקלטה וזיהוי דיבור ----------------

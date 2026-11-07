@@ -4,6 +4,7 @@ import { useApp, navigate } from '../ctx.js';
 import { speak, stopSpeaking } from '../lib/speech.js';
 import { Spinner, ErrorBox, En, SpeakButton, FeedbackCard, ProgressBar, Notice, Confetti, Mixed } from '../components/ui.jsx';
 import Recorder from '../components/Recorder.jsx';
+import { SoundHelpLink } from '../components/SoundHelp.jsx';
 
 const BASE_RATE = { A1: 0.85, A2: 0.9, B1: 1, B2: 1, C1: 1 };
 const STEPS = ['intro', 'vocab', 'listen', 'questions', 'vocabUse', 'speaking', 'summary'];
@@ -109,7 +110,7 @@ export default function Lesson({ id }) {
       {step === 'vocab' && (
         <section className="stack pop-in">
           <h2>ביטויים לשיעור</h2>
-          <p className="muted">השמיעו כל ביטוי, ואז אמרו אותו בקול בעצמכם. הביטויים יישמרו במאגר האישי שלכם בסוף השיעור.</p>
+          <p className="muted">השמיעו כל ביטוי, ואז אמרו אותו בקול בעצמכם. הביטויים יישמרו במאגר האישי שלכם בסוף השיעור. <SoundHelpLink /></p>
           <div className="vocab-cards">
             {L.vocab.map((v) => (
               <div key={v.term} className="vocab-card">
@@ -226,7 +227,7 @@ function ListenStep({ L, rate, onNext }) {
       {!playing && (
         <button className="btn btn-ghost" onClick={() => playAll(rate * 0.75)}>🐢 השמעה איטית</button>
       )}
-      <p className="tiny muted center-text">התמלול והתרגום ייפתחו אחרי שאלות ההבנה.</p>
+      <p className="tiny muted center-text">התמלול והתרגום ייפתחו אחרי שאלות ההבנה. <SoundHelpLink /></p>
       <button className="btn btn-primary btn-big" disabled={playing} onClick={onNext}>
         {plays ? 'לשאלות ההבנה' : 'דילוג לשאלות'}
       </button>

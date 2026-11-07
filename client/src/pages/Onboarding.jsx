@@ -4,6 +4,7 @@ import { useApp, navigate } from '../ctx.js';
 import { speak, stopSpeaking } from '../lib/speech.js';
 import { Spinner, ErrorBox, En, ProgressBar, Notice, SpeakButton, Confetti, Mixed } from '../components/ui.jsx';
 import Recorder from '../components/Recorder.jsx';
+import { SoundHelpLink } from '../components/SoundHelp.jsx';
 
 const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];
 const MINUTES = [5, 10, 15, 20, 30];
@@ -213,11 +214,12 @@ function QuizStep({ kind, bank, n, startLevel, onDone }) {
 
   const play = async () => {
     setPlaying(true);
-    setPlays((p) => p + 1);
+    setError(null);
     try {
       await speak(item.audio, { rate: item.level === 'A1' ? 0.85 : 0.95 });
+      setPlays((p) => p + 1);
     } catch {
-      setError('ההשמעה נכשלה. בדקו שהשמע בטלפון/מחשב מופעל ונסו שוב.');
+      setError('ההשמעה נכשלה. אפשר לנסות שוב, או לדלג עם "לא יודע/ת".');
     }
     setPlaying(false);
   };
@@ -252,7 +254,7 @@ function QuizStep({ kind, bank, n, startLevel, onDone }) {
       {kind === 'listening' ? (
         <>
           <h2>האזינו ובחרו את התשובה</h2>
-          <p className="muted">אין טקסט – רק להקשיב. אפשר להשמיע עד 2 פעמים.</p>
+          <p className="muted">אין טקסט – רק להקשיב. אפשר להשמיע עד 2 פעמים. <SoundHelpLink /></p>
           <button className={`play-big ${playing ? 'playing' : ''}`} onClick={play} disabled={playing || plays >= 2} aria-label="השמעת הקטע">
             <span aria-hidden="true">{playing ? '🔉' : '▶'}</span>
             <span>{playing ? 'משמיע…' : plays === 0 ? 'השמעה' : plays === 1 ? 'השמעה נוספת' : 'הושמע פעמיים'}</span>

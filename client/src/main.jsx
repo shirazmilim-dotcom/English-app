@@ -16,6 +16,7 @@ import Words from './pages/Words.jsx';
 import Review from './pages/Review.jsx';
 import Progress from './pages/Progress.jsx';
 import Settings from './pages/Settings.jsx';
+import SoundHelp from './components/SoundHelp.jsx';
 
 
 function parseHash() {
@@ -128,7 +129,12 @@ function App() {
     );
 
   const ctx = { user, setUser, config, route };
-  const offline = !online && <div className="offline-banner" role="status">אין חיבור לאינטרנט – חלק מהפעולות לא יעבדו עד שהחיבור יחזור.</div>;
+  const offline = (
+    <>
+      <SoundHelp />
+      {!online && <div className="offline-banner" role="status">אין חיבור לאינטרנט – חלק מהפעולות לא יעבדו עד שהחיבור יחזור.</div>}
+    </>
+  );
 
   if (!user) {
     return (

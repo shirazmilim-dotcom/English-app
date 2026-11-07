@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { api } from '../api.js';
 import { useApp, navigate } from '../ctx.js';
 import { ErrorBox, Notice } from '../components/ui.jsx';
+import { SoundHelpLink } from '../components/SoundHelp.jsx';
 
 const INTERESTS = [
   ['travel', '✈️ טיולים'], ['food', '🍜 אוכל'], ['relationships', '💞 זוגיות ויחסים'], ['music', '🎵 מוזיקה'],
@@ -86,6 +87,7 @@ export default function Settings() {
         <h3>⚙️ שירותים מחוברים</h3>
         <ul className="status-list">
           <li>{config.ai ? '🟢' : '🟡'} מורה AI ומשוב: {config.ai ? 'Claude מחובר' : 'מצב הדגמה – שיחות כתובות מראש ומשוב מבוסס כללים (לא AI)'}</li>
+          <li><SoundHelpLink /></li>
           <li>{config.tts === 'server' ? '🟢' : '🟡'} הקראה: {config.tts === 'server' ? 'קול איכותי מהשרת' : 'קול מובנה של הדפדפן (איכות משתנה בין מכשירים)'}</li>
           <li>{config.stt === 'server' ? '🟢' : '🟡'} זיהוי דיבור: {config.stt === 'server' ? 'תמלול בשרת' : 'זיהוי דיבור של הדפדפן (Chrome / Edge / Safari)'}</li>
           <li>⚪ הערכת הגייה: לא פעילה. הערכה אמינה דורשת ניתוח של האודיו עצמו, ולכן לא מוצג ציון הגייה.</li>
